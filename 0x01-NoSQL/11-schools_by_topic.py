@@ -35,16 +35,6 @@ def schools_by_topic(mongo_collection: topic):
     "topics" field includes the
     topic, it will be included in the result.
     """
-
-    # Define the filter to find documents where the "topics" array contains
-    # the specified topic.
-    topic_filter = {
-        'topics': {
-            '$elemMatch': {
-                '$eq': topic,
-            },
-        },
-    }
-
-    # Retrieve and return all matching documents as a list.
-    return [doc for doc in mongo_collection.find(topic_filter)]
+    return mongo_collection.find(
+             {"topics": topic}
+    )
