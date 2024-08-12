@@ -7,7 +7,7 @@ specific topic.
 """
 
 
-def schools_by_topic(mongo_collection: topic):
+def schools_by_topic(mongo_collection, topic):
     """
     Returns a list of schools that include a specific topic in their "topics"
     field.
