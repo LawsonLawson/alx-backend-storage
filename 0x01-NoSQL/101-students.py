@@ -1,36 +1,39 @@
 #!/usr/bin/env python3
+
 '''
-This module provides a function to retrieve a list of schools
-from a MongoDB collection that have a specific topic.
+This module provides a function to retrieve all students from a MongoDB
+collection, sorted by their average score.
 
 Functions:
-    schools_by_topic(mongo_collection, topic): Returns a list of schools
-    that include the specified topic.
+    top_students(mongo_collection): Returns a list of students sorted by
+    their average score, including the average score in the output.
 '''
 
 
-def schools_by_topic(mongo_collection, topic):
+def top_students(mongo_collection):
     '''
-    Retrieves a list of schools that have a specific topic in their
-    'topics' field.
+    Returns all students sorted by their average score.
 
     Args:
         mongo_collection (pymongo.collection.Collection): The MongoDB
-        collection
-        containing school documents.
-        topic (str): The topic to search for within the 'topics'
-        field of the documents.
+        collection containing student documents.
 
     Returns:
-        list: A list of documents (dictionaries) where the 'topics' field
-        includes the specified topic.
+        pymongo.command_cursor.CommandCursor: A cursor that yields documents
+        with student names and their corresponding average scores, sorted
+        in descending order by the average score.
     '''
-    # Query the collection to find documents where the 'topics' field contains
-    # the specified topic
-    documents = mongo_collection.find({"topics": topic})
-
-    # Convert the cursor to a list of documents
-    list_docs = [i for i in documents]
-
-    # Return the list of matching documents
-    return list_docs
+    return mongo_collection.aggregate(
+        [
+            # Stage 1: Project each student's name and their calculated
+            # average score
+            {
+                "$project": {
+                    "name": "$name",  # Include the student's name
+                    "averageScore": {"$avg": "$topics.score"},
+                }
+            },
+            # Stage 2: Sort students by their average score in descending order
+            {"$sort": {"averageScore": -1}},
+        ]
+    )
